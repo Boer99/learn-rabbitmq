@@ -33,4 +33,14 @@ public class MqListener {
     public void listenFanoutQueueMessage2(String msg) {
         log.error("消费者收到了fanout.queue的消息: {}", msg);
     }
+
+    @RabbitListener(queues = "direct.queue1")
+    public void listenDirectQueueMessage1(String msg) {
+        log.info("消费者收到了direct.queue1的消息: {}", msg);
+    }
+
+    @RabbitListener(queues = "direct.queue2")
+    public void listenDirectQueueMessage2(String msg) {
+        log.error("消费者收到了direct.queue2的消息: {}", msg);
+    }
 }
