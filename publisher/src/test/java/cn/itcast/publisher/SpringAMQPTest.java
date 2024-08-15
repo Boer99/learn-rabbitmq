@@ -33,4 +33,12 @@ public class SpringAMQPTest {
             Thread.sleep(20);
         }
     }
+
+    @Test
+    public void testSendMessage2FanoutQueue() {
+        String exchangeName = "hmall.fanout";
+        String queueName = "fanout.queue";
+        String message = "hello, everyone!";
+        rabbitTemplate.convertAndSend(exchangeName, queueName, message);
+    }
 }

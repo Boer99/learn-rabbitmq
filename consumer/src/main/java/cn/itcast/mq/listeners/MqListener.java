@@ -23,4 +23,14 @@ public class MqListener {
         log.error("消费者收到了work.queue的消息: {}", msg);
         Thread.sleep(200);
     }
+
+    @RabbitListener(queues = "fanout.queue1")
+    public void listenFanoutQueueMessage1(String msg) {
+        log.info("消费者收到了fanout.queue的消息: {}", msg);
+    }
+
+    @RabbitListener(queues = "fanout.queue2")
+    public void listenFanoutQueueMessage2(String msg) {
+        log.error("消费者收到了fanout.queue的消息: {}", msg);
+    }
 }
