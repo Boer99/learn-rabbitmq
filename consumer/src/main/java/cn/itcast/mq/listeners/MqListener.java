@@ -11,4 +11,16 @@ public class MqListener {
     public void listenSimpleQueueMessage(String msg) {
         log.info("消费者收到了simple.queue的消息: {}", msg);
     }
+
+    @RabbitListener(queues = "work.queue")
+    public void listenWorkQueueMessage1(String msg) throws InterruptedException {
+        log.info("消费者收到了work.queue的消息: {}", msg);
+        Thread.sleep(20);
+    }
+
+    @RabbitListener(queues = "work.queue")
+    public void listenWorkQueueMessage2(String msg) throws InterruptedException {
+        log.error("消费者收到了work.queue的消息: {}", msg);
+        Thread.sleep(200);
+    }
 }
