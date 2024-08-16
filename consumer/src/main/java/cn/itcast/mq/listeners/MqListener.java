@@ -1,6 +1,10 @@
 package cn.itcast.mq.listeners;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -52,5 +56,23 @@ public class MqListener {
     @RabbitListener(queues = "topic.queue2")
     public void listenTopicQueueMessage2(String msg) {
         log.error("消费者收到了topic.queue2的消息: {}", msg);
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(name = "direct.ann.q1", durable = "true"),
+            exchange = @Exchange(name = "hmall.ann.direct", type = ExchangeTypes.DIRECT),
+            key = {"red", "blue"}
+    ))
+    public void listenDirectAnnQ1(String msg) {
+        log.info("消费者收到了direct.ann.q1的消息: {}", msg);
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(name = "direct.ann.q2", durable = "true"),
+            exchange = @Exchange(name = "hmall.ann.direct", type = ExchangeTypes.DIRECT),
+            key = {"red", "yellow"}
+    ))
+    public void listenDirectAnnQ2(String msg) {
+        log.info("消费者收到了direct.ann.q2的消息: {}", msg);
     }
 }
