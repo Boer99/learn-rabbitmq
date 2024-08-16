@@ -3,6 +3,9 @@ package cn.itcast.publisher;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +14,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -98,5 +102,27 @@ public class SpringAMQPTest {
         Thread.sleep(2000); // JVM直接销毁了看不到，需要睡眠一下
     }
 
+    /**
+     * 100k消息放在内存，让消息挤压，观察paged out
+     */
+    @Test
+    public void testPageOut1() {
+        Message message = MessageBuilder
+                .withBody("hello".getBytes(StandardCharsets.UTF_8))
+                .setDeliveryMode(MessageDeliveryMode.NON_PERSISTENT).build();
+        for (int i = 0; i < 2000000; i++) {
+            rabbitTemplate.convertAndSend("simple.queue", message);
+        }
+    }
+
+    /**
+     * 100k消息都持久化，观察paged out
+     */
+    @Test
+    public void testPageOut2() {
+        for (int i = 0; i < 1000000; i++) {
+            rabbitTemplate.convertAndSend("simple.queue", "hello");
+        }
+    }
 }
 
