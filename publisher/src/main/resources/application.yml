@@ -8,3 +8,5 @@ spring:
     virtual-host: /hmall
     username: hmall
     password: 123
+    publisher-confirm-type: correlated # 开启publisher confirm机制
+    publisher-returns: true # 开启publisher return机制

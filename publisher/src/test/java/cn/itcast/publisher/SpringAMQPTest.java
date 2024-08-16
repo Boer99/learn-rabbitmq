@@ -1,19 +1,24 @@
 package cn.itcast.publisher;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 public class SpringAMQPTest {
 
     @Resource
@@ -66,4 +71,32 @@ public class SpringAMQPTest {
         jack.put("age", 18);
         rabbitTemplate.convertAndSend("object.q", jack);
     }
+
+    @Test
+    public void testConfirmCallback() throws InterruptedException {
+        CorrelationData cd = new CorrelationData(UUID.randomUUID().toString());
+        cd.getFuture().addCallback(new ListenableFutureCallback<CorrelationData.Confirm>() {
+            // spring内部的失败，几乎不会发生，不用管
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.error("消息回调失败: {}", throwable.getMessage());
+            }
+
+            // 回调成功
+            @Override
+            public void onSuccess(CorrelationData.Confirm confirm) {
+                log.info("收到confirm callback回调");
+                if (confirm.isAck()) {
+                    log.info("消息投递成功，收到ack");
+                } else {
+                    log.error("消息投递失败，收nack，原因：{}", confirm.getReason());
+                }
+            }
+        });
+//        rabbitTemplate.convertAndSend("hmall.direct", "red", "测试确认机制", cd);
+        rabbitTemplate.convertAndSend("hmall.direct", "不存在的routingKey", "测试确认机制", cd);
+        Thread.sleep(2000); // JVM直接销毁了看不到，需要睡眠一下
+    }
+
 }
+
