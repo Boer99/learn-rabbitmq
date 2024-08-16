@@ -8,6 +8,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(SpringRunner.class)
@@ -55,5 +57,13 @@ public class SpringAMQPTest {
         String exchangeName = "hmall.topic";
         rabbitTemplate.convertAndSend(exchangeName, "china.news", "hello china.news!");
         rabbitTemplate.convertAndSend(exchangeName, "japan.news", "hello japan.news!");
+    }
+
+    @Test
+    public void testSendMessage2ObjectQueue() {
+        Map<String, Object> jack = new HashMap<>();
+        jack.put("name", "jack");
+        jack.put("age", 18);
+        rabbitTemplate.convertAndSend("object.q", jack);
     }
 }
